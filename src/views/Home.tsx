@@ -16,7 +16,6 @@ function Home(): React.JSX.Element {
     const [money, setMoney] = useState('')
     const [calendarVisible, setCalendarVisible] = useState(false);
     const [selectedItemDate, setSelectedItemDate] = useState<string>('');
-console.log(selectedItemDate)
 
     const remainingValue = value > 0 ? value : 0;
     const percentage = remainingValue / maxValue;
@@ -48,21 +47,21 @@ console.log(selectedItemDate)
         {
             id: '1',
             category: 'casa',
-            date: new Date(),
+            date: '2024-11-30',
             value: 2000,
             description: 'aluguel'
         },
         {
             id: '2',
             category: 'lazer',
-            date: new Date(),
+            date: '2024-12-03',
             value: 5000,
             description: 'churrasco'
         },
         {
             id: '3',
             category: 'carro',
-            date: new Date(),
+            date: '2024-09-20',
             value: 1000,
             description: 'manutencao do carro'
         },
@@ -70,22 +69,21 @@ console.log(selectedItemDate)
 
     type ItemProps = {
         category: string
-        date: Date
+        date: string
         value: number
         description: string
     };
 
-    const openCalendar = (date: Date) => {
-        setSelectedItemDate(date.toISOString().split('T')[0]);
+    const openCalendar = (date: string) => {
+        setSelectedItemDate(date);
         setCalendarVisible(true);
     };
 
-    // Função para fechar o calendário
     const closeCalendar = () => {
         setCalendarVisible(false);
-    };
+        setSelectedItemDate('');
 
-    const [selected, setSelected] = useState('');
+    };
 
     const Item = ({ category, date, value, description }: ItemProps) => (
         <View style={styles.item}>
@@ -100,32 +98,10 @@ console.log(selectedItemDate)
                 position: 'absolute',
                 right: 10,
             }}>
-                <TouchableOpacity onPress={()=>openCalendar(date)}>
+                <TouchableOpacity onPress={() => openCalendar(date)}>
                     <Icon name='calendar-number-outline' size={32} color={'#000'} />
                 </TouchableOpacity>
             </View>
-            <Modal
-                transparent={true}
-                animationType="slide"
-                visible={calendarVisible}
-                onRequestClose={closeCalendar}
-            >
-                <View style={HomeStyles.centeredView}>
-                    <View style={HomeStyles.modalView}>
-                        <Calendar
-                            current={selectedItemDate}
-                            onDayPress={() => {
-                                closeCalendar();
-                            }}
-                            disabledByDefault={true}
-                            monthFormat={'MM yyyy'}
-                        />
-                        <TouchableOpacity style={HomeStyles.closeButton} onPress={closeCalendar}>
-                            <Text style={HomeStyles.closeButtonText}>X</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
         </View>
     );
 
@@ -174,6 +150,33 @@ console.log(selectedItemDate)
                 keyExtractor={item => item.id}
                 style={{ width: '90%' }}
             />
+
+            <Modal
+                transparent={true}
+                animationType="slide"
+                visible={calendarVisible}
+                onRequestClose={closeCalendar}
+            >
+                <View style={HomeStyles.centeredView}>
+                    <View style={HomeStyles.modalView}>
+                        <Calendar
+                            current={selectedItemDate}
+                            markedDates={{
+                                [selectedItemDate || '']: {
+                                    selected: true,
+                                    selectedColor: 'blue',
+                                    selectedTextColor: 'white',
+                                },
+                            }}
+                            disabledByDefault={true}
+                            monthFormat={'MM yyyy'}
+                        />
+                        <TouchableOpacity style={HomeStyles.closeButton} onPress={closeCalendar}>
+                            <Text style={HomeStyles.closeButtonText}>X</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
 
             <SafeAreaView style={HomeStyles.centeredView}>
                 <Modal
