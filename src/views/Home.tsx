@@ -65,6 +65,20 @@ function Home(): React.JSX.Element {
             value: 1000,
             description: 'manutencao do carro'
         },
+        {
+            id: '4',
+            category: 'carro',
+            date: '2024-09-20',
+            value: 1000,
+            description: 'manutencao do carro'
+        },
+        {
+            id: '5',
+            category: 'carro',
+            date: '2024-09-20',
+            value: 1000,
+            description: 'manutencao do carro'
+        },
     ];
 
     type ItemProps = {
@@ -87,17 +101,16 @@ function Home(): React.JSX.Element {
 
     const Item = ({ category, date, value, description }: ItemProps) => (
         <View style={styles.item}>
-            <Text style={styles.title}>{category}</Text>
-
-            <View style={{ flexDirection: 'column' }}>
-                <Text>{value.toFixed(1)}</Text>
-                <Text>{description}</Text>
+            <View style={styles.positionCategory}>
+                <Text style={styles.title}>{category}</Text>
             </View>
 
-            <View style={{
-                position: 'absolute',
-                right: 10,
-            }}>
+            <View style={{ flexDirection: 'column', width: '50%' }}>
+                <Text style={styles.textValue}>R$: {value.toFixed(2)}</Text>
+                <Text style={styles.textDescription}>{description}</Text>
+            </View>
+
+            <View style={styles.positionCalendary}>
                 <TouchableOpacity onPress={() => openCalendar(date)}>
                     <Icon name='calendar-number-outline' size={32} color={'#000'} />
                 </TouchableOpacity>
@@ -217,16 +230,40 @@ const styles = StyleSheet.create({
     item: {
         width: '100%',
         flexDirection: 'row',
-        backgroundColor: '#f9c2ff',
+        borderWidth: 0.5,
+        borderRadius: 15,
+        borderColor: '#000',
         padding: 20,
         marginVertical: 8,
         alignItems: 'center',
         paddingStart: 30,
+        justifyContent: 'center',
+        marginTop: 15,
     },
 
     title: {
         fontSize: 32,
     },
+
+    textValue: {
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+
+    textDescription: {
+        fontSize: 15,
+        fontWeight: '400'
+    },
+
+    positionCategory: {
+        position: 'absolute',
+        left: 10,
+    },
+
+    positionCalendary: {
+        position: 'absolute',
+        right: 10,
+    }
 })
 
 export default Home;
