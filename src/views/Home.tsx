@@ -6,8 +6,9 @@ import {
 import { HomeStyles } from '../styles/Home';
 
 import Svg, { Circle, G } from 'react-native-svg';
-import { Calendar } from 'react-native-calendars';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 import Icon from 'react-native-vector-icons/Ionicons';
+import CalendarModal from '../components/Calendary';
 
 function Home(): React.JSX.Element {
     const [maxValue, setMaxValue] = useState(0)
@@ -16,7 +17,6 @@ function Home(): React.JSX.Element {
     const [money, setMoney] = useState('')
     const [calendarVisible, setCalendarVisible] = useState(false);
     const [selectedItemDate, setSelectedItemDate] = useState<string>('');
-
     const remainingValue = value > 0 ? value : 0;
     const percentage = remainingValue / maxValue;
 
@@ -96,7 +96,6 @@ function Home(): React.JSX.Element {
     const closeCalendar = () => {
         setCalendarVisible(false);
         setSelectedItemDate('');
-
     };
 
     const Item = ({ category, date, value, description }: ItemProps) => (
@@ -164,32 +163,11 @@ function Home(): React.JSX.Element {
                 style={{ width: '90%' }}
             />
 
-            <Modal
-                transparent={true}
-                animationType="slide"
+            <CalendarModal
                 visible={calendarVisible}
-                onRequestClose={closeCalendar}
-            >
-                <View style={HomeStyles.centeredView}>
-                    <View style={HomeStyles.modalView}>
-                        <Calendar
-                            current={selectedItemDate}
-                            markedDates={{
-                                [selectedItemDate || '']: {
-                                    selected: true,
-                                    selectedColor: 'blue',
-                                    selectedTextColor: 'white',
-                                },
-                            }}
-                            disabledByDefault={true}
-                            monthFormat={'MM yyyy'}
-                        />
-                        <TouchableOpacity style={HomeStyles.closeButton} onPress={closeCalendar}>
-                            <Text style={HomeStyles.closeButtonText}>X</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
+                selectedDate={selectedItemDate}
+                onClose={closeCalendar}
+            />
 
             <SafeAreaView style={HomeStyles.centeredView}>
                 <Modal

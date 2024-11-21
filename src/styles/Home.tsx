@@ -114,7 +114,8 @@ export const HomeStyles = StyleSheet.create({
 
     inputMoney: {
         borderWidth: 1,
-        width: 150,
+        width: 250,
+        paddingStart: 10,
         borderRadius: 10
     }
 });
