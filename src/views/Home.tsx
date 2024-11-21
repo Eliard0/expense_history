@@ -9,6 +9,7 @@ import Svg, { Circle, G } from 'react-native-svg';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CalendarModal from '../components/Calendary';
+import MoneyModal from '../components/RegisterValue';
 
 function Home(): React.JSX.Element {
     const [maxValue, setMaxValue] = useState(0)
@@ -169,38 +170,13 @@ function Home(): React.JSX.Element {
                 onClose={closeCalendar}
             />
 
-            <SafeAreaView style={HomeStyles.centeredView}>
-                <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={modalVisible}
-                    onRequestClose={() => {
-                        setModalVisible(!modalVisible);
-                    }}>
-                    <View style={HomeStyles.centeredView}>
-                        <View style={HomeStyles.modalView}>
-                            <TouchableOpacity
-                                style={HomeStyles.closeButton}
-                                onPress={() => setModalVisible(!modalVisible)}>
-                                <Text style={HomeStyles.closeButtonText}>X</Text>
-                            </TouchableOpacity>
-                            <Text style={HomeStyles.modalText}>Informe um valor para Começarmos</Text>
-                            <TextInput
-                                placeholder="Valor Ex: 2000"
-                                keyboardType='numeric'
-                                style={HomeStyles.inputMoney}
-                                onChangeText={setMoney}
-                                value={money}
-                            />
-                            <Pressable
-                                style={HomeStyles.buttonClose}
-                                onPress={handleSetMaxValue}>
-                                <Text style={HomeStyles.textStyle}>Concluir</Text>
-                            </Pressable>
-                        </View>
-                    </View>
-                </Modal>
-            </SafeAreaView>
+            <MoneyModal
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                money={money}
+                setMoney={setMoney}
+                handleSetMaxValue={handleSetMaxValue}
+            />
         </View>
     );
 }
