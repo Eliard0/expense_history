@@ -1,9 +1,11 @@
 import React from 'react';
 import {
-    Alert, StyleSheet, Text, TouchableOpacity, View,
+    Alert, Text, TouchableOpacity, View,
 } from 'react-native';
+import { stylesLogin } from '../styles/Login';
+
 import LinearGradient from 'react-native-linear-gradient';
-import { StackParamList } from '../App';
+import { StackParamList } from '../../App';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 import ReactNativeBiometrics from 'react-native-biometrics';
@@ -33,12 +35,12 @@ const handleLogin = (navigation: LoginScreenNavigationProp) => {
 
 function Login({ navigation }: Props): React.JSX.Element {
     return (
-        <View style={styles.container}>
+        <View style={stylesLogin.container}>
             <LinearGradient
                 colors={['rgba(2,0,36,1)', 'rgba(9,9,121,1)', 'rgba(0,212,255,1)']}
-                style={styles.gradient}>
-                <TouchableOpacity style={styles.buttonLogin} onPress={() => handleLogin(navigation)}>
-                    <Text style={styles.textButtonLogin}>
+                style={stylesLogin.gradient}>
+                <TouchableOpacity style={stylesLogin.buttonLogin} onPress={() => handleLogin(navigation)}>
+                    <Text style={stylesLogin.textButtonLogin}>
                         Entrar
                     </Text>
                 </TouchableOpacity>
@@ -46,37 +48,5 @@ function Login({ navigation }: Props): React.JSX.Element {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    gradient: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    text: {
-        color: '#000',
-        fontSize: 24,
-        fontWeight: 'bold',
-    },
-
-    buttonLogin: {
-        marginTop: 20,
-        backgroundColor: '#ffff',
-        width: '40%',
-        height: '7%',
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-
-    textButtonLogin: {
-        color: 'green',
-        fontSize: 18,
-        fontWeight: '600'
-    },
-});
 
 export default Login;
