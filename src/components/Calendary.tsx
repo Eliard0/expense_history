@@ -6,6 +6,7 @@ import { HomeStyles } from '../styles/Home';
 type CalendarModalProps = {
     visible: boolean;
     selectedDate: string;
+    setSelectedDate: (date: string) => void;
     onClose: () => void;
 };
 
@@ -27,7 +28,7 @@ LocaleConfig.locales['pt-br'] = {
 
 LocaleConfig.defaultLocale = 'pt-br';
 
-const CalendarModal: React.FC<CalendarModalProps> = ({ visible, selectedDate, onClose }) => {
+const CalendarModal: React.FC<CalendarModalProps> = ({ visible, selectedDate, setSelectedDate, onClose }) => {
     return (
         <Modal
             transparent={true}
@@ -45,6 +46,9 @@ const CalendarModal: React.FC<CalendarModalProps> = ({ visible, selectedDate, on
                                 selectedColor: 'blue',
                                 selectedTextColor: 'white',
                             },
+                        }}
+                        onDayPress={(day: { dateString: string }) => {
+                            setSelectedDate(day.dateString)
                         }}
                         disabledByDefault={true}
                         monthFormat={'MMMM yyyy'}

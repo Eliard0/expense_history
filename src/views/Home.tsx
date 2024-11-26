@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import {
-    Alert, FlatList, Modal, Pressable, SafeAreaView, StyleSheet, Text, TextInput,
-    TouchableOpacity, View,
+    Alert, FlatList, StyleSheet, Text, TouchableOpacity, View,
 } from 'react-native';
 import { HomeStyles } from '../styles/Home';
 
 import Svg, { Circle, G } from 'react-native-svg';
-import { Calendar, LocaleConfig } from 'react-native-calendars';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CalendarModal from '../components/Calendary';
 import MoneyModal from '../components/RegisterValue';
+import SpentModal from '../components/SpentModal';
 
 function Home(): React.JSX.Element {
     const [maxValue, setMaxValue] = useState(0)
     const [value, setValue] = useState(maxValue)
-    const [modalVisible, setModalVisible] = useState(false)
+    const [modalMoneyVisible, setModalMoneyVisible] = useState(false)
+    const [modalSpentVisible, setModalSpentVisible] = useState(true)
     const [money, setMoney] = useState('')
     const [calendarVisible, setCalendarVisible] = useState(false);
     const [selectedItemDate, setSelectedItemDate] = useState<string>('');
+    const [spent, setSpent] = useState('');
+    const [descriptionSpent, setDescriptionSpent] = useState('');
     const remainingValue = value > 0 ? value : 0;
     const percentage = remainingValue / maxValue;
 
@@ -33,7 +35,7 @@ function Home(): React.JSX.Element {
         if (!isNaN(numericMoney) && numericMoney > 0) {
             setMaxValue((prevMaxValue) => prevMaxValue + numericMoney);
             setValue((prevValue) => prevValue + numericMoney);
-            setModalVisible(false);
+            setModalMoneyVisible(false);
             setMoney('')
         } else {
             Alert.alert('Valor inválido', 'Por favor, insira um número maior que 0.');
@@ -149,10 +151,10 @@ function Home(): React.JSX.Element {
             </View>
 
             <View style={HomeStyles.viewAddMoney}>
-                <TouchableOpacity style={HomeStyles.buttonAddMoney} onPress={() => setModalVisible(true)}>
+                <TouchableOpacity style={HomeStyles.buttonAddMoney} onPress={() => setModalMoneyVisible(true)}>
                     <Text style={HomeStyles.textButton}>Registrar Valor</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={HomeStyles.buttonAddSpent} onPress={() => min()}>
+                <TouchableOpacity style={HomeStyles.buttonAddSpent} onPress={() => setModalSpentVisible(true)}>
                     <Text style={HomeStyles.textButton}>Registrar Gasto</Text>
                 </TouchableOpacity>
             </View>
@@ -168,14 +170,25 @@ function Home(): React.JSX.Element {
                 visible={calendarVisible}
                 selectedDate={selectedItemDate}
                 onClose={closeCalendar}
+                setSelectedDate={() => {}}
             />
 
             <MoneyModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
+                visible={modalMoneyVisible}
+                onClose={() => setModalMoneyVisible(false)}
                 money={money}
                 setMoney={setMoney}
                 handleSetMaxValue={handleSetMaxValue}
+            />
+            
+            <SpentModal
+                visible={modalSpentVisible}
+                onClose={() => setModalSpentVisible(false)}
+                spent={spent}
+                setSpent={setSpent}
+                handleSetMaxValue={handleSetMaxValue}
+                descriptionSpent={descriptionSpent}
+                setDescriptionSpent={setDescriptionSpent}
             />
         </View>
     );
