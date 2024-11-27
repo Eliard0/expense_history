@@ -116,6 +116,46 @@ export const HomeStyles = StyleSheet.create({
         borderWidth: 1,
         width: 250,
         paddingStart: 10,
-        borderRadius: 10
+        borderRadius: 10,
+        marginTop: 15,
+    },
+
+    item: {
+        width: '100%',
+        flexDirection: 'row',
+        borderWidth: 0.5,
+        borderRadius: 15,
+        borderColor: '#000',
+        padding: 20,
+        marginVertical: 8,
+        alignItems: 'center',
+        paddingStart: 30,
+        justifyContent: 'center',
+        marginTop: 15,
+    },
+
+    title: {
+        fontSize: 32,
+    },
+
+    textValue: {
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+
+    textDescription: {
+        fontSize: 15,
+        fontWeight: '400'
+    },
+
+    positionCategory: {
+        position: 'absolute',
+        left: 10,
+        width: '26%'
+    },
+
+    positionCalendary: {
+        position: 'absolute',
+        right: 10,
     }
 });

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, Pressable, SafeAreaView, Alert } from 'react-native';
 import { HomeStyles } from '../styles/Home';
 import Icon from 'react-native-vector-icons/Ionicons';
-import ButtonDropdonwTypeSpent from './ButtonDropdonwTypeSpent';
 import DropdownButton from './ButtonDropdonwTypeSpent';
 import CalendarModal from './Calendary';
+import { insertData } from '../data/storeSql';
 
 type SpentModalProps = {
     visible: boolean;
@@ -16,17 +16,36 @@ type SpentModalProps = {
     handleSetMaxValue: () => void;
 };
 
-const handleSelect = (value: string) => {
-    Alert.alert('Você selecionou:', value);
-};
-
 const SpentModal: React.FC<SpentModalProps> = ({ visible, onClose, spent, setSpent, descriptionSpent, setDescriptionSpent, handleSetMaxValue }) => {
     const [calendarVisible, setCalendarVisible] = useState(false);
     const [selectedItemDate, setSelectedItemDate] = useState<string>('');
     const [formattedDate, setFormattedDate] = useState<string>('');
+    const [typeSpent, setTypeSpent] = useState<string>('');
+
+    const createSpent = async () => {
+        try {
+            const dataSpent = await insertData(spent, descriptionSpent, typeSpent, formattedDate);
+
+            if (dataSpent) {
+                console.log("Dados inseridos com sucesso!");
+                setSpent('')
+                setDescriptionSpent('')
+                setTypeSpent('')
+                setFormattedDate('')
+                setSelectedItemDate('')
+                closeCalendar()
+                Alert.alert("Dados cadastrados com sucesso")
+            } else {
+                Alert.alert("Error ao castrar os dados")
+            }
+        } catch (error) {
+            console.error("Erro durante a inserção dos dados:", error);
+        }
+    };
 
     const closeCalendar = () => {
         setCalendarVisible(false);
+        onClose()
     };
 
     const openCalendar = () => {
@@ -93,12 +112,12 @@ const SpentModal: React.FC<SpentModalProps> = ({ visible, onClose, spent, setSpe
                                 'Casa', 'Trabalho', 'Lazer',
                                 'Amigos', 'Familia', 'Presente'
                             ]}
-                            onSelect={handleSelect}
+                            onSelect={setTypeSpent}
                         />
 
                         <Pressable
                             style={HomeStyles.buttonClose}
-                            onPress={handleSetMaxValue}>
+                            onPress={createSpent}>
                             <Text style={HomeStyles.textStyle}>Concluir</Text>
                         </Pressable>
                     </View>

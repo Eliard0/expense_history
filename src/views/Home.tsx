@@ -1,25 +1,38 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    Alert, FlatList, StyleSheet, Text, TouchableOpacity, View,
+    Alert, FlatList, ScrollView, Text, TouchableOpacity, View,
 } from 'react-native';
 import { HomeStyles } from '../styles/Home';
 
-import Svg, { Circle, G } from 'react-native-svg';
+import Svg, { Circle, G, loadLocalRawResource } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CalendarModal from '../components/Calendary';
 import MoneyModal from '../components/RegisterValue';
 import SpentModal from '../components/SpentModal';
+import { fetchData } from '../data/storeSql';
+
+interface Expense {
+    id: number;
+    spent: string;
+    descriptionSpent: string;
+    typeSpent: string;
+    formattedDate: string;
+}
+
+type ItemProps = Expense
 
 function Home(): React.JSX.Element {
     const [maxValue, setMaxValue] = useState(0)
     const [value, setValue] = useState(maxValue)
     const [modalMoneyVisible, setModalMoneyVisible] = useState(false)
-    const [modalSpentVisible, setModalSpentVisible] = useState(true)
+    const [modalSpentVisible, setModalSpentVisible] = useState(false)
     const [money, setMoney] = useState('')
     const [calendarVisible, setCalendarVisible] = useState(false);
     const [selectedItemDate, setSelectedItemDate] = useState<string>('');
     const [spent, setSpent] = useState('');
     const [descriptionSpent, setDescriptionSpent] = useState('');
+    const [data, setData] = useState<Expense[]>([])
+
     const remainingValue = value > 0 ? value : 0;
     const percentage = remainingValue / maxValue;
 
@@ -42,53 +55,28 @@ function Home(): React.JSX.Element {
         }
     };
 
-    function min() {
-        setValue(value - 1)
-    }
+    const loadExpenses = async () => {
+        try {
+            const expenses = await fetchData();
 
-    const DATA = [
-        {
-            id: '1',
-            category: 'casa',
-            date: '2024-11-30',
-            value: 2000,
-            description: 'aluguel'
-        },
-        {
-            id: '2',
-            category: 'lazer',
-            date: '2024-12-03',
-            value: 5000,
-            description: 'churrasco'
-        },
-        {
-            id: '3',
-            category: 'carro',
-            date: '2024-09-20',
-            value: 1000,
-            description: 'manutencao do carro'
-        },
-        {
-            id: '4',
-            category: 'carro',
-            date: '2024-09-20',
-            value: 1000,
-            description: 'manutencao do carro'
-        },
-        {
-            id: '5',
-            category: 'carro',
-            date: '2024-09-20',
-            value: 1000,
-            description: 'manutencao do carro'
-        },
-    ];
+            const formattedExpenses = expenses.map(expense => ({
+                ...expense,
+                formattedDate: formatDateForCalendar(expense.formattedDate)
+            }));
 
-    type ItemProps = {
-        category: string
-        date: string
-        value: number
-        description: string
+            setData(formattedExpenses);
+        } catch (error) {
+            console.error("Erro ao carregar os dados:", error);
+        }
+    };
+
+    useEffect(() => {
+        loadExpenses();
+    }, []);
+
+    const formatDateForCalendar = (date: string) => {
+        const [day, month, year] = date.split('/');
+        return `${year}-${month}-${day}`; 
     };
 
     const openCalendar = (date: string) => {
@@ -98,23 +86,25 @@ function Home(): React.JSX.Element {
 
     const closeCalendar = () => {
         setCalendarVisible(false);
-        setSelectedItemDate('');
+        loadLocalRawResource()
     };
 
-    const Item = ({ category, date, value, description }: ItemProps) => (
-        <View style={styles.item}>
-            <View style={styles.positionCategory}>
-                <Text style={styles.title}>{category}</Text>
+    const Item = ({ spent, formattedDate, descriptionSpent, typeSpent }: ItemProps) => (
+        <View style={HomeStyles.item}>
+            <View style={HomeStyles.positionCategory}>
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                    <Text style={HomeStyles.title} numberOfLines={1}>
+                        {typeSpent}
+                    </Text>
+                </ScrollView>
             </View>
-
             <View style={{ flexDirection: 'column', width: '50%' }}>
-                <Text style={styles.textValue}>R$: {value.toFixed(2)}</Text>
-                <Text style={styles.textDescription}>{description}</Text>
+                <Text style={HomeStyles.textValue}>R$: {spent}</Text>
+                <Text style={HomeStyles.textDescription}>{descriptionSpent}</Text>
             </View>
-
-            <View style={styles.positionCalendary}>
-                <TouchableOpacity onPress={() => openCalendar(date)}>
-                    <Icon name='calendar-number-outline' size={32} color={'#000'} />
+            <View style={HomeStyles.positionCalendary}>
+                <TouchableOpacity onPress={() => openCalendar(formattedDate)}>
+                    <Icon name="calendar-number-outline" size={32} color="#000" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -160,9 +150,9 @@ function Home(): React.JSX.Element {
             </View>
 
             <FlatList
-                data={DATA}
+                data={data.reverse()}
                 renderItem={({ item }) => <Item {...item} />}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
                 style={{ width: '90%' }}
             />
 
@@ -170,7 +160,8 @@ function Home(): React.JSX.Element {
                 visible={calendarVisible}
                 selectedDate={selectedItemDate}
                 onClose={closeCalendar}
-                setSelectedDate={() => {}}
+                setSelectedDate={() => { }}
+
             />
 
             <MoneyModal
@@ -180,10 +171,14 @@ function Home(): React.JSX.Element {
                 setMoney={setMoney}
                 handleSetMaxValue={handleSetMaxValue}
             />
-            
+
             <SpentModal
                 visible={modalSpentVisible}
-                onClose={() => setModalSpentVisible(false)}
+                onClose={() => {
+                        setModalSpentVisible(false)
+                        loadExpenses()
+                    }
+                }
                 spent={spent}
                 setSpent={setSpent}
                 handleSetMaxValue={handleSetMaxValue}
@@ -193,44 +188,5 @@ function Home(): React.JSX.Element {
         </View>
     );
 }
-const styles = StyleSheet.create({
-    item: {
-        width: '100%',
-        flexDirection: 'row',
-        borderWidth: 0.5,
-        borderRadius: 15,
-        borderColor: '#000',
-        padding: 20,
-        marginVertical: 8,
-        alignItems: 'center',
-        paddingStart: 30,
-        justifyContent: 'center',
-        marginTop: 15,
-    },
-
-    title: {
-        fontSize: 32,
-    },
-
-    textValue: {
-        fontSize: 20,
-        fontWeight: 'bold'
-    },
-
-    textDescription: {
-        fontSize: 15,
-        fontWeight: '400'
-    },
-
-    positionCategory: {
-        position: 'absolute',
-        left: 10,
-    },
-
-    positionCalendary: {
-        position: 'absolute',
-        right: 10,
-    }
-})
 
 export default Home;

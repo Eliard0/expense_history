@@ -52,6 +52,9 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>We need Face ID to authenticate you</string>
 
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Este aplicativo precisa acessar documentos para ler e gravar arquivos.</string>
+
 	<key>UIAppFonts</key>
 	<array>
 		<string>Itim-Regular.ttf</string>
