@@ -28,6 +28,7 @@ const MoneyModal: React.FC<MoneyModalProps> = ({ visible, onClose, money, setMon
                         <Text style={HomeStyles.modalText}>Informe um valor para Começarmos</Text>
                         <TextInput
                             placeholder="Valor Ex: 2000"
+                            placeholderTextColor='green'
                             keyboardType="numeric"
                             style={HomeStyles.inputMoney}
                             onChangeText={setMoney}

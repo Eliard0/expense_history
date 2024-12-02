@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import CalendarModal from '../components/Calendary';
 import MoneyModal from '../components/RegisterValue';
 import SpentModal from '../components/SpentModal';
-import { fetchData } from '../data/storeSql';
+import { fetchDataBalance, fetchDataSpent, insertDataBalance } from '../data/storeSql';
 
 interface Expense {
     id: number;
@@ -21,6 +21,13 @@ interface Expense {
 
 type ItemProps = Expense
 
+// interface Balance {
+//     id: number;
+//     spent: number;
+//     balance: number;
+//     formattedDate: string;
+// }
+
 function Home(): React.JSX.Element {
     const [maxValue, setMaxValue] = useState(0)
     const [value, setValue] = useState(maxValue)
@@ -29,9 +36,12 @@ function Home(): React.JSX.Element {
     const [money, setMoney] = useState('')
     const [calendarVisible, setCalendarVisible] = useState(false);
     const [selectedItemDate, setSelectedItemDate] = useState<string>('');
-    const [spent, setSpent] = useState('');
+    const [spent, setSpent] = useState<number>(0);
     const [descriptionSpent, setDescriptionSpent] = useState('');
     const [data, setData] = useState<Expense[]>([])
+
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
 
     const remainingValue = value > 0 ? value : 0;
     const percentage = remainingValue / maxValue;
@@ -43,21 +53,48 @@ function Home(): React.JSX.Element {
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference * (1 - percentage);
 
-    const handleSetMaxValue = () => {
+    const handleSetMaxValue = async () => {
+        const balance = await getBalance()
+        
         const numericMoney = parseFloat(money);
         if (!isNaN(numericMoney) && numericMoney > 0) {
-            setMaxValue((prevMaxValue) => prevMaxValue + numericMoney);
-            setValue((prevValue) => prevValue + numericMoney);
+
+            const newBalance = numericMoney + balance
+    
+            insertDataBalance(newBalance, formattedDate);
+            getBalance()
+            
             setModalMoneyVisible(false);
             setMoney('')
+    
         } else {
             Alert.alert('Valor inválido', 'Por favor, insira um número maior que 0.');
         }
+        
     };
+
+    const getBalance = async (): Promise<number> => {
+        const getBalance = await fetchDataBalance();
+
+        if (getBalance.length > 0) {
+            const balance = getBalance[getBalance.length - 1].currentBalance
+            setMaxValue(balance);
+            setValue(balance);
+
+            return balance
+            
+        } else {
+            setMaxValue(0);
+            setValue(0);
+
+            return 0
+        }
+
+    }
 
     const loadExpenses = async () => {
         try {
-            const expenses = await fetchData();
+            const expenses = await fetchDataSpent();
 
             const formattedExpenses = expenses.map(expense => ({
                 ...expense,
@@ -71,12 +108,13 @@ function Home(): React.JSX.Element {
     };
 
     useEffect(() => {
+        getBalance()
         loadExpenses();
     }, []);
 
     const formatDateForCalendar = (date: string) => {
         const [day, month, year] = date.split('/');
-        return `${year}-${month}-${day}`; 
+        return `${year}-${month}-${day}`;
     };
 
     const openCalendar = (date: string) => {
@@ -175,9 +213,9 @@ function Home(): React.JSX.Element {
             <SpentModal
                 visible={modalSpentVisible}
                 onClose={() => {
-                        setModalSpentVisible(false)
-                        loadExpenses()
-                    }
+                    setModalSpentVisible(false)
+                    loadExpenses()
+                }
                 }
                 spent={spent}
                 setSpent={setSpent}

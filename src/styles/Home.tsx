@@ -115,9 +115,11 @@ export const HomeStyles = StyleSheet.create({
     inputMoney: {
         borderWidth: 1,
         width: 250,
+        height: 45,
         paddingStart: 10,
         borderRadius: 10,
         marginTop: 15,
+        color: '#000'
     },
 
     item: {

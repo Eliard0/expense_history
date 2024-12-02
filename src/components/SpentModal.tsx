@@ -4,15 +4,15 @@ import { HomeStyles } from '../styles/Home';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropdownButton from './ButtonDropdonwTypeSpent';
 import CalendarModal from './Calendary';
-import { insertData } from '../data/storeSql';
+import { fetchDataBalance, insertDataBalance, insertDataSpent } from '../data/storeSql';
 
 type SpentModalProps = {
     visible: boolean;
     onClose: () => void;
-    spent: string;
+    spent: number;
     descriptionSpent: string;
     setDescriptionSpent: React.Dispatch<React.SetStateAction<string>>;
-    setSpent: React.Dispatch<React.SetStateAction<string>>;
+    setSpent: React.Dispatch<React.SetStateAction<number>>;
     handleSetMaxValue: () => void;
 };
 
@@ -22,22 +22,40 @@ const SpentModal: React.FC<SpentModalProps> = ({ visible, onClose, spent, setSpe
     const [formattedDate, setFormattedDate] = useState<string>('');
     const [typeSpent, setTypeSpent] = useState<string>('');
 
+    const currentDate = new Date();
+    const dateCurrentFormated = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
+
+
     const createSpent = async () => {
         try {
-            const dataSpent = await insertData(spent, descriptionSpent, typeSpent, formattedDate);
+            const balance = await fetchDataBalance();
 
-            if (dataSpent) {
-                console.log("Dados inseridos com sucesso!");
-                setSpent('')
-                setDescriptionSpent('')
-                setTypeSpent('')
-                setFormattedDate('')
-                setSelectedItemDate('')
-                closeCalendar()
-                Alert.alert("Dados cadastrados com sucesso")
+            if (balance != null) {
+                const saldo = Number(balance[0])
+                if (saldo >= spent) {
+                    const dataSpent = await insertDataSpent(spent, descriptionSpent, typeSpent, formattedDate);
+                    const dataBalance = insertDataBalance(saldo, dateCurrentFormated);
+
+                    console.log("Dados inseridos com sucesso!");
+                    setSpent(0)
+                    setDescriptionSpent('')
+                    setTypeSpent('')
+                    setFormattedDate('')
+                    setSelectedItemDate('')
+                    onClose()
+
+                } else {
+                    Alert.alert("Voce nao possui saldo suficiente")
+                }
             } else {
-                Alert.alert("Error ao castrar os dados")
+                Alert.alert("Voce ainda nao adicionou saldo")
             }
+
+            // if (dataSpent) {
+            //     Alert.alert("Dados cadastrados com sucesso")
+            // } else {
+            //     Alert.alert("Error ao castrar os dados")
+            // }
         } catch (error) {
             console.error("Erro durante a inserção dos dados:", error);
         }
@@ -45,7 +63,6 @@ const SpentModal: React.FC<SpentModalProps> = ({ visible, onClose, spent, setSpe
 
     const closeCalendar = () => {
         setCalendarVisible(false);
-        onClose()
     };
 
     const openCalendar = () => {
@@ -85,26 +102,31 @@ const SpentModal: React.FC<SpentModalProps> = ({ visible, onClose, spent, setSpe
                         <TextInput
                             placeholder="Valor Ex: 2000"
                             keyboardType="numeric"
+                            placeholderTextColor='#808080'
                             style={HomeStyles.inputMoney}
                             onChangeText={setSpent}
                             value={spent}
                         />
                         <TextInput
                             placeholder="Descrição: "
+                            placeholderTextColor='#808080'
                             style={[HomeStyles.inputMoney, { marginTop: 10 }]}
                             onChangeText={setDescriptionSpent}
                             value={descriptionSpent}
                         />
 
-                        <TouchableOpacity onPress={openCalendar}>
-                            <TextInput
-                                placeholder="Selecione a data: "
-                                style={[HomeStyles.inputMoney, { marginTop: 10 }]}
-                                value={formattedDate}
-                                editable={false}
-                            />
-                            <Icon name='calendar-number-outline' size={28} color={'#000'} style={{ position: 'absolute', right: 15, top: 15 }} />
-                        </TouchableOpacity>
+                        <View>
+                            <TouchableOpacity onPress={openCalendar}>
+                                <TextInput
+                                    placeholder="Selecione a data: "
+                                    placeholderTextColor='#808080'
+                                    style={[HomeStyles.inputMoney, { marginTop: 10 }]}
+                                    value={formattedDate}
+                                    editable={false}
+                                />
+                                <Icon name='calendar-number-outline' size={28} color={'#000'} style={{ position: 'absolute', right: 15, top: 15 }} />
+                            </TouchableOpacity>
+                        </View>
 
                         <DropdownButton
                             placeholder="Tipo de Gasto"

@@ -5,7 +5,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './src/views/Login';
 import HomeScreen from './src/views/Home';
 import { StatusBar } from 'react-native';
-import { openDatabase } from './src/data/store';
 
 export type StackParamList = {
   Login: undefined;
@@ -16,8 +15,6 @@ const Stack = createStackNavigator<StackParamList>();
 
 function App(): React.JSX.Element {
   
-  const db = openDatabase();
-
   return (
     <NavigationContainer>
       <StatusBar
