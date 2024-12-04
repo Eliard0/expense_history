@@ -28,9 +28,9 @@ const SpentModal: React.FC<SpentModalProps> = ({ visible, onClose, spent, setSpe
     const createSpent = async () => {
         try {
             const balance = await fetchDataBalance();
-            if (balance != null) {
+            console.log(balance.length)
+            if (balance.length > 0) {
                 const saldo = balance[balance.length - 1].currentBalance
-                console.log(saldo)
                 if (saldo >= spent) {
                     const dataSpent = await insertDataSpent(spent, descriptionSpent, typeSpent, formattedDate);
                     const newSaldo = saldo - spent
@@ -42,12 +42,11 @@ const SpentModal: React.FC<SpentModalProps> = ({ visible, onClose, spent, setSpe
                     setFormattedDate('')
                     setSelectedItemDate('')
                     onClose()
-
                 } else {
-                    Alert.alert("Voce nao possui saldo suficiente")
+                    Alert.alert("Você não possui saldo suficiente")
                 }
             } else {
-                Alert.alert("Voce ainda nao adicionou saldo")
+                Alert.alert("Você ainda não adicionou saldo")
             }
         } catch (error) {
             console.error("Erro durante a inserção dos dados:", error);
@@ -97,8 +96,17 @@ const SpentModal: React.FC<SpentModalProps> = ({ visible, onClose, spent, setSpe
                             keyboardType="numeric"
                             placeholderTextColor='#808080'
                             style={HomeStyles.inputMoney}
-                            onChangeText={setSpent}
-                            value={spent}
+                            onChangeText={(text) => {
+                                if (text == "") {
+                                    setSpent(0);
+                                } else {
+                                    const numericValue = parseFloat(text);
+                                    if (!isNaN(numericValue)) {
+                                        setSpent(numericValue);
+                                    }
+                                }
+                            }}
+                            value={spent === 0 ? "" : spent.toString()} 
                         />
                         <TextInput
                             placeholder="Descrição: "
