@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-    Alert, FlatList, ScrollView, Text, TouchableOpacity, View,
+    Alert, Animated, FlatList, ScrollView, Text, TouchableOpacity, View,
 } from 'react-native';
 import { HomeStyles } from '../styles/Home';
 
@@ -21,13 +21,6 @@ interface Expense {
 
 type ItemProps = Expense
 
-// interface Balance {
-//     id: number;
-//     spent: number;
-//     balance: number;
-//     formattedDate: string;
-// }
-
 function Home(): React.JSX.Element {
     const [maxValue, setMaxValue] = useState(0)
     const [value, setValue] = useState(maxValue)
@@ -39,6 +32,7 @@ function Home(): React.JSX.Element {
     const [spent, setSpent] = useState<number>(0);
     const [descriptionSpent, setDescriptionSpent] = useState('');
     const [data, setData] = useState<Expense[]>([])
+    const opacityGrafo = useRef(new Animated.Value(0.1)).current
 
     const currentDate = new Date();
     const formattedDate = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
@@ -54,23 +48,21 @@ function Home(): React.JSX.Element {
     const strokeDashoffset = circumference * (1 - percentage);
 
     const handleSetMaxValue = async () => {
-        const balance = await getBalance()
-        
+        const balance = await getBalance();
+
         const numericMoney = parseFloat(money);
         if (!isNaN(numericMoney) && numericMoney > 0) {
+            const newBalance = numericMoney + balance;
 
-            const newBalance = numericMoney + balance
-    
-            insertDataBalance(newBalance, formattedDate);
-            getBalance()
-            
+            await insertDataBalance(newBalance, formattedDate);
+            setMaxValue(newBalance);
+            setValue(newBalance);
+
             setModalMoneyVisible(false);
-            setMoney('')
-    
+            setMoney('');
         } else {
             Alert.alert('Valor inválido', 'Por favor, insira um número maior que 0.');
         }
-        
     };
 
     const getBalance = async (): Promise<number> => {
@@ -78,18 +70,31 @@ function Home(): React.JSX.Element {
 
         if (getBalance.length > 0) {
             const balance = getBalance[getBalance.length - 1].currentBalance
-            setMaxValue(balance);
             setValue(balance);
 
             return balance
-            
+
         } else {
-            setMaxValue(0);
             setValue(0);
 
             return 0
         }
+    }
 
+    const getMaxBalance = async (): Promise<number> => {
+        const maxValue = await fetchDataBalance();
+
+        if (maxValue.length > 0) {
+            const max = maxValue[maxValue.length - 1].currentBalance
+            setMaxValue(max);
+
+            return max
+
+        } else {
+            setMaxValue(0);
+
+            return 0
+        }
     }
 
     const loadExpenses = async () => {
@@ -102,12 +107,21 @@ function Home(): React.JSX.Element {
             }));
 
             setData(formattedExpenses);
+            getBalance()
+
         } catch (error) {
             console.error("Erro ao carregar os dados:", error);
         }
     };
 
     useEffect(() => {
+        Animated.timing(opacityGrafo, {
+            toValue: 1,
+            duration: 4500,
+            useNativeDriver: true
+        }).start()
+
+        getMaxBalance()
         getBalance()
         loadExpenses();
     }, []);
@@ -150,7 +164,7 @@ function Home(): React.JSX.Element {
 
     return (
         <View style={HomeStyles.container}>
-            <View style={{ marginTop: '15%' }}>
+            <Animated.View style={{ marginTop: '15%', opacity: opacityGrafo }}>
                 <Svg width={size} height={size}>
                     <G rotation="-90" originX={size / 2} originY={size / 2}>
                         <Circle
@@ -176,7 +190,7 @@ function Home(): React.JSX.Element {
                 <View style={HomeStyles.containerViewMoney}>
                     <Text style={HomeStyles.textMoney}>{remainingValue}</Text>
                 </View>
-            </View>
+            </Animated.View>
 
             <View style={HomeStyles.viewAddMoney}>
                 <TouchableOpacity style={HomeStyles.buttonAddMoney} onPress={() => setModalMoneyVisible(true)}>
@@ -188,9 +202,10 @@ function Home(): React.JSX.Element {
             </View>
 
             <FlatList
-                data={data.reverse()}
+                data={data}
                 renderItem={({ item }) => <Item {...item} />}
                 keyExtractor={item => item.id.toString()}
+                inverted
                 style={{ width: '90%' }}
             />
 

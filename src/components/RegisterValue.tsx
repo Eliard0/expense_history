@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, Pressable, SafeAreaView } from 'react-native';
+import { Modal, View, Text, TextInput, TouchableOpacity, 
+        Pressable, SafeAreaView } from 'react-native';
 import { HomeStyles } from '../styles/Home';
 
 type MoneyModalProps = {
@@ -9,6 +10,7 @@ type MoneyModalProps = {
     setMoney: React.Dispatch<React.SetStateAction<string>>;
     handleSetMaxValue: () => void;
 };
+
 
 const MoneyModal: React.FC<MoneyModalProps> = ({ visible, onClose, money, setMoney, handleSetMaxValue }) => {
     return (

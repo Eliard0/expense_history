@@ -79,7 +79,6 @@ export const fetchDataBalance = async (): Promise<Balance[]> => {
                     for (let i = 0; i < rows.length; i++) {
                         balance.push(rows.item(i) as Balance);
                     }
-                    console.log(balance)
                     resolve(balance);
                 },
                 (error) => {

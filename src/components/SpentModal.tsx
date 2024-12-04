@@ -25,18 +25,17 @@ const SpentModal: React.FC<SpentModalProps> = ({ visible, onClose, spent, setSpe
     const currentDate = new Date();
     const dateCurrentFormated = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
 
-
     const createSpent = async () => {
         try {
             const balance = await fetchDataBalance();
-
             if (balance != null) {
-                const saldo = Number(balance[0])
+                const saldo = balance[balance.length - 1].currentBalance
+                console.log(saldo)
                 if (saldo >= spent) {
                     const dataSpent = await insertDataSpent(spent, descriptionSpent, typeSpent, formattedDate);
-                    const dataBalance = insertDataBalance(saldo, dateCurrentFormated);
+                    const newSaldo = saldo - spent
+                    const dataBalance = insertDataBalance(newSaldo, dateCurrentFormated);
 
-                    console.log("Dados inseridos com sucesso!");
                     setSpent(0)
                     setDescriptionSpent('')
                     setTypeSpent('')
@@ -50,12 +49,6 @@ const SpentModal: React.FC<SpentModalProps> = ({ visible, onClose, spent, setSpe
             } else {
                 Alert.alert("Voce ainda nao adicionou saldo")
             }
-
-            // if (dataSpent) {
-            //     Alert.alert("Dados cadastrados com sucesso")
-            // } else {
-            //     Alert.alert("Error ao castrar os dados")
-            // }
         } catch (error) {
             console.error("Erro durante a inserção dos dados:", error);
         }
